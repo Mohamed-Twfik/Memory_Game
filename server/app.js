@@ -28,7 +28,7 @@ app.post('/', (req, res)=>{
         console.log(socket.username + ' connected')
         socket.emit('login', {username: socket.username})
 
-        socket.on('createGame', ()=>{
+        socket.on('createRoom', ()=>{
             let roomId = Math.floor(Math.random()*100000)+''
             socket.roomId = roomId
             socket.turns = 0
@@ -37,7 +37,7 @@ app.post('/', (req, res)=>{
             socket.emit('joinWaitingRoom', {roomId, roomFull: false, username: socket.username, userId: socket.id, owner: true})
         })
 
-        socket.on('joinGame', async(roomId)=>{
+        socket.on('joinRoom', async(roomId)=>{
             if(!rooms.includes(roomId)) socket.emit('idWrong', {roomId})
 
             else if(runningRooms.includes(roomId)) socket.emit('roomStartRunning', roomId)
@@ -64,17 +64,23 @@ app.post('/', (req, res)=>{
             players.forEach((player)=>{
                 playersInfo.push({username: player.username, userId: player.id, turns: 0})
             })
-            io.in(roomId).emit('startGame', {roomId, playersInfo})
+            io.in(roomId).emit('turn', {roomId, playersInfo})
             runningRooms.push(roomId)
         })
 // -----------------------------------------------
         socket.on('turn', async(data)=>{
             let roomId = socket.roomId
             let players = await io.in(roomId).fetchSockets()
+            playersInfo = []
             let player = players.find((player)=>{return player.id == data.userId})
             player.turns++
             socket.turns++
-            io.in(roomId).emit('turn', {roomId, data})
+            players.forEach((player)=>{
+                if(player.id == data.userId) playersInfo.push({username: player.username, userId: player.id, turns: player.turns+1})
+
+                else playersInfo.push({username: player.username, userId: player.id, turns: player.turns})
+            })
+            io.in(roomId).emit('turn', {roomId, playersInfo})
         })
 
         socket.on('leaveGame', async()=>{
