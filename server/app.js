@@ -3,7 +3,7 @@ const {Server} = require('socket.io')
 const app = express()
 const http = require('http').createServer(app)
 const io = new Server(http)
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8000
 let rooms = []
 
 http.listen(port, () => {console.log(`Listening at URL http://localhost:${port}`)})
