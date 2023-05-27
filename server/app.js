@@ -36,7 +36,7 @@ app.post('/', (req, res)=>{
         socket.on('joinGame', async(roomId)=>{
             if(rooms.includes(roomId)){
                 let sockets = await io.in(roomId).fetchSockets()
-                roomFull = sockets.length == 5
+                roomFull = sockets.length >= 2
                 if(sockets.length < 6){
                     socket.roomId = roomId
                     socket.turns = 0
