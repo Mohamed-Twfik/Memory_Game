@@ -28,13 +28,14 @@ app.post('/', (req, res)=>{
         console.log(socket.username + ' connected')
         socket.emit('login', {username: socket.username})
 
-        socket.on('createRoom', ()=>{
+        socket.on('createRoom', async()=>{
             let roomId = Math.floor(Math.random()*100000)+''
             socket.roomId = roomId
             socket.turns = 0
             socket.join(roomId)
             rooms.push(roomId)
-            socket.emit('joinWaitingRoom', {roomId, roomFull: false, username: socket.username, userId: socket.id, owner: true})
+            let sockets = await io.in(roomId).fetchSockets()
+            socket.emit('joinWaitingRoom', {roomId, playersNumber: sockets.length, roomFull: false, username: socket.username, userId: socket.id, owner: true})
         })
 
         socket.on('joinRoom', async(roomId)=>{
@@ -43,14 +44,18 @@ app.post('/', (req, res)=>{
             else if(runningRooms.includes(roomId)) socket.emit('roomStartRunning', roomId)
 
             else{
-                let sockets = await io.in(roomId).fetchSockets()
-                roomFull = sockets.length >= 2
+                let players = await io.in(roomId).fetchplayers()
+                playersInfo = []
+                roomFull = players.length >= 2
 
-                if(sockets.length < 6){
+                if(players.length < 6){
                     socket.roomId = roomId
                     socket.turns = 0
                     socket.join(roomId)
-                    socket.emit('joinWaitingRoom', {roomId, playersNumber: sockets.length, roomFull, username: socket.username, userId: socket.id, owner: false})
+                    players.forEach((player)=>{
+                        playersInfo.push({username: player.username, userId: player.id})
+                    })
+                    socket.emit('joinWaitingRoom', {roomId, playersInfo, playersNumber: players.length+1, roomFull, username: socket.username, userId: socket.id, owner: false})
                 }
                 else socket.emit('roomFull', roomId)
             }
