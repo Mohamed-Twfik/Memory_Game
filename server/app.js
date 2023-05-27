@@ -16,9 +16,10 @@ app.use(cors())
 
 app.post('/', (req, res)=>{
     let username = req.body.name
-    if(username.length <= 0){
-        return res.status(400).json({error: 'Username cannot be empty'})
-    }
+
+    if(username) res.status(200).json({username})
+    else res.status(400).json({error: 'No username'})
+    
     io.on('connection', (socket)=>{
         socket.username = username
         console.log(socket.username + ' connected')
