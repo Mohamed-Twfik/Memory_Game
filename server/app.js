@@ -10,8 +10,8 @@ let rooms = []
 http.listen(port, () => {console.log(`Listening at URL http://localhost:${port}`)})
 
 app.use(express.static('public'))
-app.use(express.urlencoded({extended: true}))
-app.use(express.json())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:true}))
 app.use(cors())
 
 app.post('/', (req, res)=>{
@@ -19,7 +19,7 @@ app.post('/', (req, res)=>{
 
     if(username) res.status(200).json({username})
     else res.status(400).json({error: 'No username'})
-    
+
     io.on('connection', (socket)=>{
         socket.username = username
         console.log(socket.username + ' connected')
