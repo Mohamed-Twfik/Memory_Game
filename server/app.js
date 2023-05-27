@@ -50,7 +50,7 @@ app.post('/', (req, res)=>{
                     socket.roomId = roomId
                     socket.turns = 0
                     socket.join(roomId)
-                    io.in(roomId).emit('joinWaitingRoom', {roomId, playersNumber: sockets.length, roomFull, username: socket.username, userId: socket.id, owner: false})
+                    socket.emit('joinWaitingRoom', {roomId, playersNumber: sockets.length, roomFull, username: socket.username, userId: socket.id, owner: false})
                 }
                 else socket.emit('roomFull', roomId)
             }
@@ -67,26 +67,47 @@ app.post('/', (req, res)=>{
             io.in(roomId).emit('turn', {roomId, playersInfo})
             runningRooms.push(roomId)
         })
-// -----------------------------------------------
+
         socket.on('turn', async(data)=>{
             let roomId = socket.roomId
             let players = await io.in(roomId).fetchSockets()
             playersInfo = []
-            let player = players.find((player)=>{return player.id == data.userId})
-            player.turns++
-            socket.turns++
+            // let player = players.find((player)=>{return player.id == data.userId})
+            // player.turns++
             players.forEach((player)=>{
-                if(player.id == data.userId) playersInfo.push({username: player.username, userId: player.id, turns: player.turns+1})
-
+                if(player.id == data.userId) {
+                    playersInfo.push({username: player.username, userId: player.id, turns: player.turns+1})
+                    socket.turns++
+                }
                 else playersInfo.push({username: player.username, userId: player.id, turns: player.turns})
             })
             io.in(roomId).emit('turn', {roomId, playersInfo})
         })
 
+        // socket.on('endGame', async()=>{
+        //     let roomId = socket.roomId
+        //     let players = await io.in(roomId).fetchSockets()
+        //     playersInfo = []
+        //     players.forEach((player)=>{
+        //         playersInfo.push({username: player.username, userId: player.id, turns: player.turns})
+        //     })
+        //     io.in(roomId).emit('endGame', {roomId, playersInfo})
+        //     socket.leave(roomId)
+        //     delete socket.roomId
+        //     delete socket.turns
+        //     let sockets = await io.in(roomId).fetchSockets()
+        //     if(sockets.length == 0){
+        //         rooms.splice(rooms.indexOf(roomId), 1)
+        //         runningRooms.splice(runningRooms.indexOf(roomId), 1)
+        //     }
+        // })
+
         socket.on('leaveGame', async()=>{
             let roomId = socket.roomId
             io.in(roomId).emit('playerLeft', {roomId, username: socket.username})
             socket.leave(roomId)
+            delete socket.roomId
+            delete socket.turns
             let sockets = await io.in(roomId).fetchSockets()
             if(sockets.length == 0){
                 rooms.splice(rooms.indexOf(roomId), 1)
