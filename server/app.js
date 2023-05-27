@@ -17,34 +17,14 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(cors())
 
-// let userName = req.body.name
-
-// if(!userName) return res.status(400).json({error: 'No userName'})
-
-// res.status(200).json({userName})
-
 io.on('connection', (socket)=>{
-
     // Every socket connection has a unique ID
     console.log('new connection: ' + socket.id)
 
-    // User Logged in
     socket.on('login', (name) => {
-        // Map socket.id to the name
         users[socket.id] = name;
         socket.userName = name
-
-        // Broadcast to everyone else (except the sender).
-        // Say that the user has logged in.
-        // socket.broadcast.emit('msg', {
-        //     from: 'server',
-        //     message: `${name} logged in.`
-        // })
     })
-
-    // socket.userName = userName
-    // console.log(socket.userName + ' connected')
-    // socket.emit('login', {userName: socket.userName})
 
     socket.on('createRoom', async()=>{
         let roomId = Math.floor(Math.random()*100000)+''
@@ -52,8 +32,11 @@ io.on('connection', (socket)=>{
         socket.turns = 0
         socket.join(roomId)
         rooms.push(roomId)
+        playersInfo = []
+        playersInfo.push({userName: socket.userName, userId: socket.id})
+
         let sockets = await io.in(roomId).fetchSockets()
-        socket.emit('joinWaitingRoom', {roomId, playersNumber: sockets.length, roomFull: false, userName: socket.userName, userId: socket.id, owner: true})
+        socket.emit('joinWaitingRoom', {roomId, playersInfo, playersNumber: sockets.length, roomFull: false, userName: socket.userName, userId: socket.id, owner: true})
     })
 
     socket.on('joinRoom', async(roomId)=>{
@@ -73,7 +56,8 @@ io.on('connection', (socket)=>{
                 players.forEach((player)=>{
                     playersInfo.push({userName: player.userName, userId: player.id})
                 })
-                socket.emit('joinWaitingRoom', {roomId, playersInfo, playersNumber: players.length+1, roomFull, userName: socket.userName, userId: socket.id, owner: false})
+                playersInfo.push({userName: socket.userName, userId: socket.id})
+                io.in(roomId).emit('joinWaitingRoom', {roomId, playersInfo, playersNumber: players.length+1, roomFull, userName: socket.userName, userId: socket.id, owner: false})
             }
             else socket.emit('roomFull', roomId)
         }
