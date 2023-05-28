@@ -6,7 +6,8 @@ const http = require('http').createServer(app)
 const io = new Server(http, {cors: {origin: 'http://localhost:3000'}})
 const port = process.env.PORT || 8000
 const bodyParser = require('body-parser')
-let users = {}
+const e = require('express')
+const { assert } = require('console')
 let rooms = []
 let runningRooms = []
 
@@ -17,12 +18,26 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(cors())
 
+const endGameEmit = async(roomId)=>{
+    let players = await io.in(roomId).fetchSockets()
+    let winners = [players[0]]
+    for(let i = 1; i < players.length; i++){
+        const player = players[i]
+        if(player.turns < winners[0].turns && player.finished) winners = [player]
+        else if(player.turns == winners[0].turns && player.finished) winners.push(player)
+    }
+    for(let i = 0; i < winners.length; i++){
+        const winner = winners[i]
+        io.in(winner.id).emit('winner', {roomId, winner: true})
+    }
+    io.in(roomId).emit('endGame', {roomId, winners})
+}
+
 io.on('connection', (socket)=>{
     // Every socket connection has a unique ID
     console.log('new connection: ' + socket.id)
 
     socket.on('login', (name) => {
-        users[socket.id] = name;
         socket.userName = name
     })
 
@@ -88,34 +103,29 @@ io.on('connection', (socket)=>{
         })
         io.in(roomId).emit('turn', {roomId, playersInfo})
     })
-
-    // socket.on('endGame', async()=>{
-    //     let roomId = socket.roomId
-    //     let players = await io.in(roomId).fetchSockets()
-    //     playersInfo = []
-    //     players.forEach((player)=>{
-    //         playersInfo.push({userName: player.userName, userId: player.id, turns: player.turns})
-    //     })
-    //     io.in(roomId).emit('endGame', {roomId, playersInfo})
-    //     socket.leave(roomId)
-    //     delete socket.roomId
-    //     delete socket.turns
-    //     let sockets = await io.in(roomId).fetchSockets()
-    //     if(sockets.length == 0){
-    //         rooms.splice(rooms.indexOf(roomId), 1)
-    //         runningRooms.splice(runningRooms.indexOf(roomId), 1)
-    //     }
-    // })
-
-    socket.on('leaveGame', async()=>{
+    
+    let checkFirstPlayerDone = false
+    let time = 60000
+    socket.on("playerDone", async()=>{
         let roomId = socket.roomId
-        io.in(roomId).emit('playerLeft', {roomId, userName: socket.userName})
-        socket.leave(roomId)
-        delete socket.roomId
-        delete socket.turns
-        let sockets = await io.in(roomId).fetchSockets()
-        if(sockets.length == 0){
-            rooms.splice(rooms.indexOf(roomId), 1)
+        socket.finished = true
+        socket.emit('finishGame', {turns: socket.turns})
+        io.in(roomId).emit('playerDone', {userName: socket.userName, userId: socket.id})
+
+        let endgame = true
+        let players = await io.in(roomId).fetchSockets()
+        for (let i = 0; i < players.length; i++) {
+            if(!players[i].finished){
+                endgame = false
+                break
+            }
+        }
+        
+        if(endgame) endGameEmit(roomId)
+
+        if(!checkFirstPlayerDone){
+            checkFirstPlayerDone = true
+            setTimeout(endGameEmit, time, roomId)
         }
     })
 
@@ -131,7 +141,4 @@ io.on('connection', (socket)=>{
         }
         socket.disconnect()
     })
-
 })
-// app.post('/', (req, res)=>{
-// })
