@@ -47,7 +47,7 @@ io.on('connection', (socket)=>{
         else{
             let players = await io.in(roomId).fetchSockets()
             playersInfo = []
-            roomFull = players.length >= 2
+            roomFull = players.length == 6
 
             if(players.length < 6){
                 socket.roomId = roomId
@@ -75,14 +75,12 @@ io.on('connection', (socket)=>{
         runningRooms.push(roomId)
     })
 
-    socket.on('turn', async(data)=>{
+    socket.on('turn', async()=>{
         let roomId = socket.roomId
         let players = await io.in(roomId).fetchSockets()
         playersInfo = []
-        // let player = players.find((player)=>{return player.id == data.userId})
-        // player.turns++
         players.forEach((player)=>{
-            if(player.id == data.userId) {
+            if(player.id == socket.id) {
                 playersInfo.push({userName: player.userName, userId: player.id, turns: player.turns+1})
                 socket.turns++
             }
