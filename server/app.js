@@ -123,35 +123,26 @@ io.on('connection', (socket)=>{
         }
         
         if(endgame) {
-            // endGameEmit(roomId, io)
-            // let players = await io.in(roomId).fetchSockets()
             let winners = [players[0]]
             for(let i = 1; i < players.length; i++){
                 const player = players[i]
                 if(player.turns < winners[0].turns && player.finished) winners = [player]
                 else if(player.turns == winners[0].turns && player.finished) winners.push(player)
             }
-            for(let i = 0; i < winners.length; i++){
-                const winner = winners[i]
-                io.in(winner.id).emit('winner', {roomId, winner: true})
-            }
+            io.in(winners[0].id).emit('winner', {roomId, winner: true})
             io.in(roomId).emit('endGame', {roomId, winners})
         }
 
         if(!checkFirstPlayerDone){
             checkFirstPlayerDone = true
             setTimeout(() => {
-                // endGameEmit(roomId, io)
                 let winners = [players[0]]
                 for(let i = 1; i < players.length; i++){
                     const player = players[i]
                     if(player.turns < winners[0].turns && player.finished) winners = [player]
                     else if(player.turns == winners[0].turns && player.finished) winners.push(player)
                 }
-                for(let i = 0; i < winners.length; i++){
-                    const winner = winners[i]
-                    io.in(winner.id).emit('winner', {roomId, winner: true})
-                }
+                io.in(winners[0].id).emit('winner', {roomId, winner: true})
                 io.in(roomId).emit('endGame', {roomId, winners})
             }, time)
         }
