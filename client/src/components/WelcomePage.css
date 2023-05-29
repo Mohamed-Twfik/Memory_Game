@@ -1,0 +1,22 @@
+.inputName{
+    width: 40%;
+    display: block;
+    padding: 1em;
+    margin:2em auto;
+    outline: none;
+    border-radius: 5px ;
+    border:0;
+    text-align: center;
+}
+
+.inputName::placeholder{
+    font-weight: bold;
+}
+
+.error{
+    background-color: rgb(117, 27, 27);
+    width:40%;
+    margin: 0 auto;
+    padding: 1em;
+    border-radius: 0.5em;
+}

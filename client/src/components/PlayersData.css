@@ -1,0 +1,21 @@
+.playerTable {
+  border-collapse: collapse;
+  width: 50%;
+  margin: 1em auto;
+}
+
+.playerTable th,
+.playerTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #c03a3a;
+}
+
+.playerTable th {
+  background-color: #0c4abd;
+  font-weight: bold;
+}
+
+.playerTable tr:nth-child(even) {
+  background-color: #ac3030;
+}

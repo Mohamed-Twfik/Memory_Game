@@ -1,0 +1,12 @@
+.waitingListContainer {
+  width: 50%;
+  margin: 1em auto;
+}
+
+.playerCard {
+  background-color: rgb(8, 65, 8);
+  padding: 0.5em;
+  border-radius: 0.5em;
+  font-weight: bold;
+  margin-top: 0.4em;
+}
