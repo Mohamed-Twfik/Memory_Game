@@ -13,25 +13,24 @@ let endgame = {}
 
 http.listen(port, () => {console.log(`Listening at URL http://localhost:${port}`)})
 
-
-app.use(function (req, res, next) {
-    let allowedDomains =['http://localhost:3000', 'https://memorygame-6w0y.onrender.com/', 'https://cards-game-client.onrender.com'];
-    let origin = req.headers.origin;
-    if(allowedDomains.indexOf(origin) > -1){
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Accept');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-
-    next();
-})
-
 app.use(express.static('public'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
-app.use(cors())
+
+var allowedOrigins = ['http://localhost:3000', 'http://example.com:5000'];
+app.use(cors({
+    origin: (origin, callback)=>{
+        // allow requests with no origin 
+        // (like mobile apps or curl requests)
+        if(!origin) return callback(null, true);
+        if(allowedOrigins.indexOf(origin) === -1){
+            let msg = 'The CORS policy for this site does not ' + 'allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+}));
+// app.use(cors())
 
 const endGameEmit = async(roomId, playersEndedGame)=>{
     let winner = playersEndedGame[0]
