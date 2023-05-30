@@ -3,7 +3,7 @@ const {Server} = require('socket.io')
 const app = express()
 const cors = require('cors')
 const http = require('http').createServer(app)
-const io = new Server(http)
+const io = new Server(http, cors({origin: '*'}))
 const port = process.env.PORT || 8000
 const bodyParser = require('body-parser')
 let rooms = []
@@ -16,21 +16,7 @@ http.listen(port, () => {console.log(`Listening at URL http://localhost:${port}`
 app.use(express.static('public'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
-
-var allowedOrigins = ['http://localhost:3000', 'https://memorygame-6w0y.onrender.com/', 'https://cards-game-client.onrender.com'];
-app.use(cors({
-    origin: (origin, callback)=>{
-        // allow requests with no origin 
-        // (like mobile apps or curl requests)
-        if(!origin) return callback(null, true);
-        if(allowedOrigins.indexOf(origin) === -1){
-            let msg = 'The CORS policy for this site does not ' + 'allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    }
-}));
-// app.use(cors())
+app.use(cors())
 
 const endGameEmit = async(roomId, playersEndedGame)=>{
     let winner = playersEndedGame[0]
