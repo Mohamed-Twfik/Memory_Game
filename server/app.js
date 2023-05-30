@@ -100,7 +100,7 @@ io.on('connection', (socket)=>{
         io.in(roomId).emit('turn', {roomId, playersInfo})
     })
     
-    let time = 10000
+    let time = 60000
     socket.on("playerDone", async()=>{
         let roomId = socket.roomId
         let checkFirstPlayerDone = false
