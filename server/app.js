@@ -3,7 +3,7 @@ const {Server} = require('socket.io')
 const app = express()
 const cors = require('cors')
 const http = require('http').createServer(app)
-const io = new Server(http, {cors: {origin: 'http://localhost:3000'}})
+const io = new Server(http, {cors: {origin: 'https://memorygame-6w0y.onrender.com'}})
 const port = process.env.PORT || 8000
 const bodyParser = require('body-parser')
 let rooms = []
@@ -25,7 +25,6 @@ const endGameEmit = async(roomId, playersEndedGame)=>{
         if(player.turns < winner.turns) winner = player
     }
     winnerUser = {userName: winner.userName, id: winner.id, turns: winner.turns}
-    // io.in(winner.id).emit('endGame', {roomId, winner:winnerUser})
     io.in(roomId).emit('endGame', {roomId, winner:winnerUser})
 }
 
