@@ -8,8 +8,6 @@ import "./App.css";
 
 import { SocketContext } from "./context/SocketContext";
 import PlayersData from "./components/PlayersData";
-import PlayerDone from "./components/PlayerDone";
-import GameEnd from "./components/GameEnd";
 
 const cardImages = [
   { src: "/images/helmet-1.png", matched: false },
@@ -36,8 +34,7 @@ function App() {
   const [roomId, setRoomId] = useState("");
   const [gameData, setGameData] = useState({});
   const [roomUsers, setRoomUsers] = useState([]);
-  const [endGameData,setEndGameData] = useState({});
-  const [winner, setWinner] = useState(false)
+  const [endGameData,setEndGameData] = useState(null);
   const [turns,setTurns] = useState(0);
 
   useEffect(() => {
@@ -96,18 +93,11 @@ function App() {
     })
 
     socket?.on("endGame", (data) => {
-      console.log(data)
       setEndGameData(data);
-      if(socket.id == data.winner.id){
-        setWinner(true)
-      }
     })
 
-    // socket?.on("endGame", (data) => {
-    //   setEndGameData(data);
-    // })
-  }, [socket])
- 
+  }, [socket, userName])
+
   const playerDone = () => {
     let result = cards.filter((card) => card.matched);
     if (result.length === cards.length) {
@@ -117,7 +107,21 @@ function App() {
       return false;
     }
   };
- 
+
+  const leaveGame = () => {
+    socket.emit("leaveGame");
+    setGameState("createRoom");
+  }
+
+  const winnerMessage = () => {
+    if(userName === endGameData?.winner?.userName) {
+      return  <h1 className="winner">you won the game in {endGameData?.winner?.turns} turns</h1>
+    }
+    else {
+      return <h1 className="winner">{endGameData?.winner?.userName} won the game in {endGameData?.winner?.turns} turns</h1>
+    }
+  }
+
   return (
     <div className="app">
       {gameState === "" ? (
@@ -144,11 +148,11 @@ function App() {
         <div className="app">
           <h1 className="gameName">Magic Game</h1>
           <p>finish with least number of turns and as fast as possible</p>
-          {/* <button className='startBtn' onClick={()=>{shuffleCards();setShowCards(true);setTimeout(()=>setShowCards(false),2000)}}>start new game</button> */}
           <div className="cards">
 
-            {(playerDone() && !endGameData.roomId && turns) && <PlayerDone turns={turns}/>}
-            {endGameData && <GameEnd winner={winner} endGameData={endGameData}/>}
+            {(playerDone() && !endGameData && turns) && <h3 className="winner">Please wait for other players. You finish the game in {turns} turns</h3>}
+
+            {endGameData && winnerMessage()}
 
             {cards.map((card) => (
               <SingleCard
@@ -170,6 +174,12 @@ function App() {
             setGameData={setGameData}
             roomId={roomId}
           />
+          <button className="startBtn waiting" onClick={()=>leaveGame()}>
+            Leave Game
+          </button>
+          <button className="startBtn waiting">
+            <a href="/">Logout</a>
+          </button>
         </div>
       )}
     </div>

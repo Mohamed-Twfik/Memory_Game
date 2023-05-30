@@ -3,7 +3,7 @@ const {Server} = require('socket.io')
 const app = express()
 const cors = require('cors')
 const http = require('http').createServer(app)
-const io = new Server(http, {cors: {origin: 'https://memorygame-6w0y.onrender.com'}})
+const io = new Server(http, {cors: {origin: ['http://localhost:3000', 'https://memorygame-6w0y.onrender.com/']}})
 const port = process.env.PORT || 8000
 const bodyParser = require('body-parser')
 let rooms = []
@@ -118,27 +118,32 @@ io.on('connection', (socket)=>{
                 break
             }
         }
-        
+
         if(endgame[roomId]) {
             endGameEmit(roomId, playersEndedGame[roomId])
         }
 
         if(!checkFirstPlayerDone){
             checkFirstPlayerDone = true
+            io.in(roomId).emit('startTimerToEnd')
             setTimeout(endGameEmit, time, roomId, playersEndedGame[roomId])
         }
+    })
+
+    socket.on('leaveGame', async()=>{
+        let roomId = socket.roomId
+        socket.leave(roomId)
+        let players = await io.in(roomId).fetchSockets()
+        if(players.length == 0) rooms.splice(rooms.indexOf(roomId), 1)
+        else io.in(roomId).emit('playerLeft', {userName: socket.userName, userId: socket.id})
+        socket.roomId = null
+        socket.turns = 0
+        socket.finished = false
     })
 
     // Disconnected
     socket.on('disconnect', async() => {
         console.log(socket.id + ' disconnected')
-        let roomId = socket.roomId
-        io.in(roomId).emit('playerLeft', {roomId: roomId, id: socket.id})
-        socket.leave(roomId)
-        let sockets = await io.in(roomId).fetchSockets()
-        if(sockets.length == 0){
-            rooms.splice(rooms.indexOf(roomId), 1)
-        }
         socket.disconnect()
     })
 })

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useContext } from "react";
 import { SocketContext } from "../context/SocketContext";
 import "./WaitingRoom.css";
@@ -11,21 +11,28 @@ export default function WaitingRoom({
   setGameData,
 }) {
   const socket = useContext(SocketContext);
+  const [playerLeft, setPlayerLeft] = useState(null);
+
 
   useEffect(() => {
     socket.on("turn", (data) => {
       setGameData(data);
       setGameState("game");
     });
-  }, [socket, setGameData, setGameState]);
+    
+    socket.on('playerLeft', (data) => {
+      setPlayerLeft(data);
+      roomUsers.splice(roomUsers.indexOf(playerLeft),1);
+    })
+  }, [socket, setGameData, setGameState, roomUsers]);
 
   function startGame() {
     socket.emit("startGame");
   }
 
-  function leaveGame() {
-    // socket.emit("leaveGame");
-    // setGameState("createGame");
+  const leaveGame = () => {
+    socket.emit("leaveGame");
+    setGameState("createRoom");
   }
 
   return (
@@ -46,8 +53,11 @@ export default function WaitingRoom({
           Start game
         </button>
       )}
-      <button className="startBtn waiting" onClick={() => leaveGame()}>
-        <a href="/">Leave game</a>
+      <button className="startBtn waiting" onClick={()=>leaveGame()}>
+        Leave Game
+      </button>
+      <button className="startBtn waiting">
+        <a href="/">Logout</a>
       </button>
     </div>
   );

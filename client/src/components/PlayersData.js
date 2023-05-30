@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./PlayersData.css";
 import { useContext } from "react";
 import { SocketContext } from "../context/SocketContext";
 // import  from "react";
 export default function PlayersData({ gameData, setGameData, roomId }) {
   const socket = useContext(SocketContext);
+  const [playerLeft, setPlayerLeft] = useState(null);
 
   useEffect(() => {
     socket.on("playerDone", (data) => {
@@ -16,7 +17,23 @@ export default function PlayersData({ gameData, setGameData, roomId }) {
       }
       setGameData({ roomId: roomId, playersInfo: gameData.playersInfo });
     })
+
+    socket.on('playerLeft', (data) => {
+      setPlayerLeft(data);
+    })
   }, [socket, roomId, gameData])
+
+  const playerStatus = (done)=>{
+    if(playerLeft){
+      return(
+        <td>Player Left</td>
+      )
+    }else{
+      return(
+        <td>{done?"Done":"Still playing.."}</td>
+      )
+    }
+  }
 
   return (
     <table className="playerTable">
@@ -32,7 +49,7 @@ export default function PlayersData({ gameData, setGameData, roomId }) {
           <tr className={player.done?"finishGame":""} key={player.userId}>
             <td>{player.userName}</td>
             <td>{player.turns}</td>
-            <td>{player.done?"Done":"Still playing.."}</td>
+            {playerStatus(player.done)}
           </tr>
         ))}
       </tbody>
