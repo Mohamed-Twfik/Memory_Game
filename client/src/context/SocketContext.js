@@ -9,7 +9,7 @@ export const SocketProvider = ({ children }) => {
 
 
   useEffect(() => {
-    const newSocket = io('http://localhost:8000');
+    const newSocket = io('https://cards-game-server.onrender.com');
     setSocket(newSocket);
 
     return () => newSocket.close();
