@@ -16,6 +16,6 @@
   font-weight: bold;
 }
 
-.playerTable tr:nth-child(even) {
+.finishGame{
   background-color: #ac3030;
 }

@@ -41,12 +41,13 @@ export default function CreateGame({
     });
 
     socket.on("idWrong", (data) => {
-      console.log(data);
+      alert("Sorry " + data.roomId + " is not a valid room id..!");
     });
 
-    socket.on("login", (data) => {
-      console.log(data);
+    socket.on("roomBusy", (data) => {
+      alert("Sorry Room: " + data.roomId + " is full or already starting play..!");
     });
+    
   }, [socket, setGameState]);
 
   return (

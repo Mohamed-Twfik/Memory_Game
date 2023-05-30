@@ -23,11 +23,16 @@ export default function WaitingRoom({
     socket.emit("startGame");
   }
 
+  function leaveGame() {
+    // socket.emit("leaveGame");
+    // setGameState("createGame");
+  }
+
   return (
     <div>
       <h1>Waiting Room</h1>
       <h1>welcome {userName} </h1>
-      <h3>invitation id: {roomId}</h3>
+      <h3>invitation id: <strong>{roomId}</strong></h3>
 
       <ul className="waitingListContainer">
         {roomUsers.map((user) => (
@@ -37,10 +42,13 @@ export default function WaitingRoom({
         ))}
       </ul>
       {owner && roomUsers.length > 1 && (
-        <button className="startBtn" onClick={() => startGame()}>
+        <button className="startBtn waiting" onClick={() => startGame()}>
           Start game
         </button>
       )}
+      <button className="startBtn waiting" onClick={() => leaveGame()}>
+        <a href="/">Leave game</a>
+      </button>
     </div>
   );
 }

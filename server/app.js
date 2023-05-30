@@ -24,9 +24,9 @@ const endGameEmit = async(roomId, playersEndedGame)=>{
         const player = playersEndedGame[i]
         if(player.turns < winner.turns) winner = player
     }
-    console.log(winner)
-    io.in(winner.id).emit('endGame', {roomId, userId: winner.id, userName: winner.userName, turns: winner.turns, winner: true})
-    io.in(roomId).except(winner.id).emit('endGame', {roomId, userId: winner.id, userName: winner.userName, turns: winner.turns, winner: false})
+    winnerUser = {userName: winner.userName, id: winner.id, turns: winner.turns}
+    // io.in(winner.id).emit('endGame', {roomId, winner:winnerUser})
+    io.in(roomId).emit('endGame', {roomId, winner:winnerUser})
 }
 
 io.on('connection', (socket)=>{
@@ -53,7 +53,7 @@ io.on('connection', (socket)=>{
     socket.on('joinRoom', async(roomId)=>{
         if(!rooms.includes(roomId)) socket.emit('idWrong', {roomId})
 
-        else if(runningRooms.includes(roomId)) socket.emit('roomBusy', roomId)
+        else if(runningRooms.includes(roomId)) socket.emit('roomBusy', {roomId})
 
         else{
             let players = await io.in(roomId).fetchSockets()
@@ -93,10 +93,10 @@ io.on('connection', (socket)=>{
         for (let i = 0; i < players.length; i++) {
             const player = players[i]
             if(player.id == socket.id) {
-                playersInfo.push({userName: player.userName, userId: player.id, turns: player.turns+1})
+                playersInfo.push({userName: player.userName, userId: player.id, turns: player.turns+1, done: false})
                 socket.turns++
             }
-            else playersInfo.push({userName: player.userName, userId: player.id, turns: player.turns})
+            else playersInfo.push({userName: player.userName, userId: player.id, turns: player.turns, done: false})
         }
         io.in(roomId).emit('turn', {roomId, playersInfo})
     })
@@ -108,8 +108,8 @@ io.on('connection', (socket)=>{
         socket.finished = true
         playersEndedGame[roomId] = playersEndedGame[roomId] || []
         playersEndedGame[roomId].push({userId: socket.id, userName: socket.userName, turns: socket.turns})
-        socket.emit('finishGame', {turns: socket.turns})
-        io.in(roomId).except(socket.id).emit('playerDone', {userName: socket.userName, userId: socket.id})
+        socket.emit('finishGame', {userName: socket.userName, userId: socket.id, turns: socket.turns, done: true})
+        io.in(roomId).emit('playerDone', {userName: socket.userName, userId: socket.id, turns: socket.turns, done: true})
 
         endgame[roomId] = endgame[roomId] || true
         let players = await io.in(roomId).fetchSockets()

@@ -9,6 +9,7 @@ import "./App.css";
 import { SocketContext } from "./context/SocketContext";
 import PlayersData from "./components/PlayersData";
 import PlayerDone from "./components/PlayerDone";
+import GameEnd from "./components/GameEnd";
 
 const cardImages = [
   { src: "/images/helmet-1.png", matched: false },
@@ -35,10 +36,9 @@ function App() {
   const [roomId, setRoomId] = useState("");
   const [gameData, setGameData] = useState({});
   const [roomUsers, setRoomUsers] = useState([]);
-
-
-  
- 
+  const [endGameData,setEndGameData] = useState({});
+  const [winner, setWinner] = useState(false)
+  const [turns,setTurns] = useState(0);
 
   useEffect(() => {
     
@@ -90,6 +90,23 @@ function App() {
     shuffleCards();
   }, []);
 
+  useEffect(() => {
+    socket?.on("finishGame", (data) => {
+      setTurns(data.turns);
+    })
+
+    socket?.on("endGame", (data) => {
+      console.log(data)
+      setEndGameData(data);
+      if(socket.id == data.winner.id){
+        setWinner(true)
+      }
+    })
+
+    // socket?.on("endGame", (data) => {
+    //   setEndGameData(data);
+    // })
+  }, [socket])
  
   const playerDone = () => {
     let result = cards.filter((card) => card.matched);
@@ -129,7 +146,10 @@ function App() {
           <p>finish with least number of turns and as fast as possible</p>
           {/* <button className='startBtn' onClick={()=>{shuffleCards();setShowCards(true);setTimeout(()=>setShowCards(false),2000)}}>start new game</button> */}
           <div className="cards">
-            {playerDone() && <PlayerDone />}
+
+            {(playerDone() && !endGameData.roomId && turns) && <PlayerDone turns={turns}/>}
+            {endGameData && <GameEnd winner={winner} endGameData={endGameData}/>}
+
             {cards.map((card) => (
               <SingleCard
                 key={card.id}
@@ -145,7 +165,11 @@ function App() {
               />
             ))}
           </div>
-          <PlayersData gameData={gameData} />
+          <PlayersData 
+            gameData={gameData}
+            setGameData={setGameData}
+            roomId={roomId}
+          />
         </div>
       )}
     </div>
