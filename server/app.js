@@ -17,7 +17,7 @@ app.use(express.static('public'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 
-var allowedOrigins = ['http://localhost:3000', 'http://example.com:5000'];
+var allowedOrigins = ['http://localhost:3000', 'https://memorygame-6w0y.onrender.com/', 'https://cards-game-client.onrender.com'];
 app.use(cors({
     origin: (origin, callback)=>{
         // allow requests with no origin 
