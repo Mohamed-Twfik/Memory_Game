@@ -3,7 +3,7 @@ const {Server} = require('socket.io')
 const app = express()
 const cors = require('cors')
 const http = require('http').createServer(app)
-const io = new Server(http, {cors: {origin: ['http://localhost:3000', 'https://memorygame-6w0y.onrender.com/', 'https://cards-game-client.onrender.com']}})
+const io = new Server(http)
 const port = process.env.PORT || 8000
 const bodyParser = require('body-parser')
 let rooms = []
@@ -12,6 +12,21 @@ let playersEndedGame = {}
 let endgame = {}
 
 http.listen(port, () => {console.log(`Listening at URL http://localhost:${port}`)})
+
+
+app.use(function (req, res, next) {
+    let allowedDomains =['http://localhost:3000', 'https://memorygame-6w0y.onrender.com/', 'https://cards-game-client.onrender.com'];
+    let origin = req.headers.origin;
+    if(allowedDomains.indexOf(origin) > -1){
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Accept');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    next();
+})
 
 app.use(express.static('public'))
 app.use(bodyParser.json())
