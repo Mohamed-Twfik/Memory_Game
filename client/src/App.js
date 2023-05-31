@@ -115,10 +115,10 @@ function App() {
 
   const winnerMessage = () => {
     if(userName === endGameData?.winner?.userName) {
-      return  <h1 className="winner">you won the game in {turns} turns</h1>
+      return  <h1 className="winner">you won the game in {endGameData?.winner?.turns} turns</h1>
     }
     else {
-      return <h1 className="winner">{endGameData?.winner?.userName} won the game in {turns} turns</h1>
+      return <h1 className="winner">{endGameData?.winner?.userName} won the game in {endGameData?.winner?.turns} turns</h1>
     }
   }
 
