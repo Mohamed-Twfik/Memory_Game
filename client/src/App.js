@@ -78,7 +78,7 @@ function App() {
     setChoiceTwo(null);
     
     socket.emit("turn",gameData);
-   
+
     setDisabled(false);
   };
 
@@ -115,10 +115,10 @@ function App() {
 
   const winnerMessage = () => {
     if(userName === endGameData?.winner?.userName) {
-      return  <h1 className="winner">you won the game in {endGameData?.winner?.turns} turns</h1>
+      return  <h1 className="winner">you won the game in {turns} turns</h1>
     }
     else {
-      return <h1 className="winner">{endGameData?.winner?.userName} won the game in {endGameData?.winner?.turns} turns</h1>
+      return <h1 className="winner">{endGameData?.winner?.userName} won the game in {turns} turns</h1>
     }
   }
 
@@ -147,7 +147,7 @@ function App() {
       ) : (
         <div className="app container">
           <h1 className="">Play Started...</h1>
-          <p>finish with least number of turns and as fast as possible</p>
+          <p>Finish with least number of turns and as fast as possible</p>
           <div className="cards">
 
             {(playerDone() && !endGameData && turns) && <h3 className="winner">Please wait for other players. You finish the game in {turns} turns</h3>}
