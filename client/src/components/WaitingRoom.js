@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useContext } from "react";
 import { SocketContext } from "../context/SocketContext";
-import "./WaitingRoom.css";
+
 export default function WaitingRoom({
   userName,
   owner,
@@ -36,8 +36,8 @@ export default function WaitingRoom({
   }
 
   return (
-    <div>
-      <h1>Waiting Room</h1>
+    <div className="container waitingRoom">
+      <h1>Waiting Room...</h1>
       <h1>welcome {userName} </h1>
       <h3>invitation id: <strong>{roomId}</strong></h3>
 
@@ -49,14 +49,14 @@ export default function WaitingRoom({
         ))}
       </ul>
       {owner && roomUsers.length > 1 && (
-        <button className="startBtn waiting" onClick={() => startGame()}>
+        <button className="startBtn createGameBtn" onClick={() => startGame()}>
           Start game
         </button>
       )}
-      <button className="startBtn waiting" onClick={()=>leaveGame()}>
+      <button className="startBtn leave" onClick={()=>leaveGame()}>
         Leave Game
       </button>
-      <button className="startBtn waiting">
+      <button className="startBtn logout">
         <a href="/">Logout</a>
       </button>
     </div>

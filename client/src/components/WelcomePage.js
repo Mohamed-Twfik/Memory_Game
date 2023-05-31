@@ -1,7 +1,7 @@
 import React,{ useState,useContext} from 'react'
 import { SocketContext } from '../context/SocketContext'
 
-import './WelcomePage.css'
+// import './WelcomePage.css'
 
 export default function WelcomePage({setGameState}) {
   const [name,setName] = useState('')
@@ -23,11 +23,11 @@ export default function WelcomePage({setGameState}) {
 
 
   return (
-    <div>
-      <h1>Welcome to Memory Game</h1>
+    <div className='container'>
+      <h1>Welcome to Similar Cards Game</h1>
       {error && <h3 className='error'>{error}</h3>}
       <input className='inputName' type='text' placeholder='Enter your name' onChange={(e)=>setName(e.target.value)} />
-      <button className='startBtn' onClick={()=>enterUserName()} >Start Game</button>
+      <button className='startBtn' onClick={()=>enterUserName()} >Login</button>
     </div>
   )
 }

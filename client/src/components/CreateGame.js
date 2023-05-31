@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
 import { SocketContext } from "../context/SocketContext";
-import "./CreateGame.css";
 
 export default function CreateGame({
   setGameState,
@@ -51,10 +50,10 @@ export default function CreateGame({
   }, [socket, setGameState]);
 
   return (
-    <div>
-      <h1>Welcome to Memory Game</h1>
+    <div className="container">
+      <h1>Welcome to Similar Cards Game</h1>
       <button
-        className="startBtn createGameBtn"
+        className={toggleRoomId ? "startBtn cancel" : "startBtn createGameBtn"}
         onClick={() => {
           setToggleRoomId((prev) => !prev);
         }}
@@ -81,6 +80,9 @@ export default function CreateGame({
           Create game
         </button>
       )}
+      <button className="startBtn logout">
+        <a href="/">Logout</a>
+      </button>
     </div>
   );
 }

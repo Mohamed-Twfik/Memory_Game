@@ -4,18 +4,18 @@ import WelcomePage from "./components/WelcomePage";
 import CreateGame from "./components/CreateGame";
 import WaitingRoom from "./components/WaitingRoom";
 
-import "./App.css";
-
 import { SocketContext } from "./context/SocketContext";
 import PlayersData from "./components/PlayersData";
 
 const cardImages = [
-  { src: "/images/helmet-1.png", matched: false },
-  { src: "/images/potion-1.png", matched: false },
-  { src: "/images/ring-1.png", matched: false },
-  { src: "/images/scroll-1.png", matched: false },
-  { src: "/images/shield-1.png", matched: false },
-  { src: "/images/sword-1.png", matched: false },
+  { src: "/images/moon.jpg", matched: false },
+  { src: "/images/sun.jpg", matched: false },
+  { src: "/images/cofee.jpg", matched: false },
+  { src: "/images/flower.jpg", matched: false },
+  { src: "/images/plate.jpg", matched: false },
+  { src: "/images/lion.jpg", matched: false },
+  { src: "/images/road.jpg", matched: false },
+  { src: "/images/car.jpg", matched: false },
 ];
 
 function App() {
@@ -145,8 +145,8 @@ function App() {
           setGameData={setGameData}
         />
       ) : (
-        <div className="app">
-          <h1 className="gameName">Magic Game</h1>
+        <div className="app container">
+          <h1 className="">Play Started...</h1>
           <p>finish with least number of turns and as fast as possible</p>
           <div className="cards">
 
@@ -174,10 +174,10 @@ function App() {
             setGameData={setGameData}
             roomId={roomId}
           />
-          <button className="startBtn waiting" onClick={()=>leaveGame()}>
+          <button className="startBtn leave" onClick={()=>leaveGame()}>
             Leave Game
           </button>
-          <button className="startBtn waiting">
+          <button className="startBtn logout">
             <a href="/">Logout</a>
           </button>
         </div>
